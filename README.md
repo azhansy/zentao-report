@@ -136,208 +136,55 @@ python zentao_main.py 7 --period half
 - 周期报告类型：
   可选值通常为 `quarter`、`half`、`year`（具体以入口参数为准）
 
-## 许可证建议
-
-开源前建议补充 LICENSE（MIT/Apache-2.0 等）和 CONTRIBUTING 文档。
-
-**月报（当月）**：
-
-```python
-def get_current_month_range():
-    today = datetime.date.today()
-    start = today.replace(day=1)
-    end = (start + datetime.timedelta(days=32)).replace(day=1) - datetime.timedelta(days=1)
-    return start, end
-```
-
-## 🔧 工作流程
-
-```
-1. 连接禅道 API
-   ├─ 登录认证
-   └─ 获取 session token
-
-2. 获取任务数据
-   ├─ 按时间范围筛选
-   ├─ 按成员分组
-   └─ 统计任务状态
-
-3. 生成报告
-   ├─ 格式化为 Markdown
-   ├─ 添加统计信息
-   └─ 保存到 build/ 目录
-
-4. 推送飞书（可选）
-   └─ 通过 Webhook 发送
-```
-
-## ❗ 常见问题
-
-### 1. 无法连接禅道
-
-**原因**：URL、用户名或密码错误
-
-**解决**：
-- 检查 `.env` 中的配置
-- 确认禅道 URL 可以访问
-- 验证用户名密码是否正确
-- 检查禅道 API 是否开启
-
-### 2. 飞书推送失败
-
-**原因**：Webhook 地址错误或权限不足
-
-**解决**：
-- 确认 Webhook 地址正确
-- 检查机器人是否被添加到群聊
-- 查看飞书机器人的权限设置
-
-### 3. 中文乱码
-
-确保脚本使用 UTF-8 编码：
-
-```python
-with open(output_file, 'w', encoding='utf-8') as f:
-    f.write(content)
-```
-
-### 4. 时间范围不对
-
-根据需求修改时间计算逻辑，注意时区问题。
-
-## 📝 使用技巧
-
-### 1. 定时运行
-
-使用 cron 定时生成报告：
-
-```bash
-# 每周一早上9点生成上周报告
-0 9 * * 1 cd /path/to/zentao && python zentao_task.py
-
-# 每月1号生成上月报告
-0 9 1 * * cd /path/to/zentao && python zentao_monthly_task.py
-```
-
-### 2. 自定义过滤
-
-在脚本中添加任务过滤逻辑：
-
-```python
-def filter_tasks(tasks):
-    # 只显示特定项目的任务
-    return [t for t in tasks if t['project'] == '核心项目']
-    
-    # 只显示高优先级任务
-    return [t for t in tasks if t['pri'] >= 3]
-```
-
-### 3. 导出 Excel
-
-使用 `pandas` 导出 Excel：
-
-```python
-import pandas as pd
-
-df = pd.DataFrame(tasks)
-df.to_excel('build/tasks.xlsx', index=False)
-```
-
-### 4. 多群推送
-
-配置多个 Webhook：
-
-```python
-WEBHOOKS = [
-    "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx",  # 技术群
-    "https://open.feishu.cn/open-apis/bot/v2/hook/yyyyy",  # 管理群
-]
-
-for webhook in WEBHOOKS:
-    send_to_feishu(webhook, content)
-```
-
-## 🎓 新手提示
-
-1. **第一次使用**：
-   - 先确认能访问禅道系统
-   - 获取 API 文档（通常在 `/doc` 路径）
-   - 测试 API 连接
-
-2. **调试技巧**：
-   - 使用 `print()` 查看 API 返回数据
-   - 先测试获取少量数据
-   - 检查 HTTP 状态码和错误信息
-
-3. **权限问题**：
-   - 确保用户有查看任务的权限
-   - 某些禅道版本需要管理员权限
-   - 检查 API 访问是否被限制
-
-4. **数据理解**：
-   - 任务状态：wait, doing, done, closed, cancel
-   - 优先级：1-4（1最高）
-   - 任务类型：开发、测试、Bug等
-
-## 🔄 集成其他系统
-
-### 集成钉钉
-
-替换飞书 Webhook 为钉钉格式：
-
-```python
-def send_to_dingtalk(webhook, content):
-    payload = {
-        "msgtype": "markdown",
-        "markdown": {
-            "title": "周报",
-            "text": content
-        }
-    }
-    requests.post(webhook, json=payload)
-```
-
-### 集成企业微信
-
-```python
-def send_to_wechat(webhook, content):
-    payload = {
-        "msgtype": "markdown",
-        "markdown": {
-            "content": content
-        }
-    }
-    requests.post(webhook, json=payload)
-```
-
-### 生成图表
-
-使用 `matplotlib` 生成任务统计图表：
-
-```python
-import matplotlib.pyplot as plt
-
-# 任务状态分布
-labels = ['完成', '进行中', '等待']
-sizes = [12, 2, 1]
-plt.pie(sizes, labels=labels, autopct='%1.1f%%')
-plt.savefig('build/task_stats.png')
-```
-
-# 进入容器构建程序包
-、、、
-scp -r . ab@192.168.9.5:/Users/ab/docker/ql/data/scripts/zentao
-docker exec -it qinglong bash
-pip install pyinstaller -i https://pypi.tuna.tsinghua.edu.cn/simple
-pyinstaller --clean --noconfirm zentao_main.spec
-cp -r ./zentao/dist/zentao_main/ ./zentao_main
-# 复制配置文件到容器
-scp zentao.ini ab@192.168.9.5:/Users/ab/docker/ql/data/scripts/zentao_main/zentao.ini
-```
-
 ## 📚 相关资源
 
 - [禅道开源版文档](https://www.zentao.net/book/zentaopmshelp.html)
 - [禅道 API 文档](https://www.zentao.net/book/api/)
 - [飞书机器人文档](https://open.feishu.cn/document/ukTMukTMukTM/ucTM5YjL3ETO24yNxkjN)
-- [钉钉机器人文档](https://open.dingtalk.com/document/robots/custom-robot-access)
+
+## 构建与发布
+
+### 本地构建
+
+使用 PyInstaller 构建单平台可执行文件。
+
+**前置条件**：
+```bash
+pip install -r requirements.txt
+pip install pyinstaller
+```
+
+**构建命令**：
+```bash
+pyinstaller --clean --noconfirm zentao_main.spec
+```
+
+输出文件位于 `dist/zentao_main/` 目录。
+
+### 多平台自动构建
+
+本项目配置了 GitHub Actions 工作流 (`.github/workflows/build.yml`)，支持自动构建以下平台的可执行文件：
+
+- **Linux** (x64)
+- **macOS** (Intel x64)
+- **macOS** (Apple Silicon ARM64)
+- **Windows** (x64)
+
+**触发方式**：
+
+1. **标签发布**（推荐）：创建新的 git tag 并 push
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+   GitHub Actions 会自动构建并在 Release 页面上传二进制文件。
+
+2. **手动触发**：在 GitHub 仓库的 Actions 标签页选择 "Build Multi-Platform Executables" 工作流并手动运行。
+
+**发布工件**：
+- 构建输出会自动上传到 GitHub Artifacts（保留 30 天）
+- 标签发布时，二进制文件会附加到 Release 页面供下载
+
+## 开源协议
+
+本项目使用 MIT License，详见 `LICENSE`。

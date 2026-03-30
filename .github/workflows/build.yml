@@ -1,0 +1,77 @@
+name: Build Multi-Platform Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x64
+            python_version: '3.9'
+          - os: macos-latest
+            name: macos-intel-x64
+            python_version: '3.9'
+          - os: macos-13
+            name: macos-apple-silicon-arm64
+            python_version: '3.9'
+          - os: windows-latest
+            name: windows-x64
+            python_version: '3.9'
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build executable
+        run: |
+          pyinstaller --clean --noconfirm zentao_main.spec
+      
+      - name: Package artifact (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          cd dist
+          tar -czf zentao_main-${{ matrix.name }}.tar.gz zentao_main/
+          ls -lh zentao_main-${{ matrix.name }}.tar.gz
+      
+      - name: Package artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd dist
+          Compress-Archive -Path zentao_main -DestinationPath "zentao_main-${{ matrix.name }}.zip"
+          ls -l "zentao_main-${{ matrix.name }}.zip"
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: zentao_main-${{ matrix.name }}
+          path: dist/zentao_main-${{ matrix.name }}.*
+          retention-days: 30
+      
+      - name: Create Release and Upload Assets
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/zentao_main-${{ matrix.name }}.*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
