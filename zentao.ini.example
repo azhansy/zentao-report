@@ -1,0 +1,26 @@
+[zentao]
+# 禅道 API 配置
+base_url = https://your-zentao-domain/zentao/api.php/v1
+web_url = https://your-zentao-domain/zentao
+username = your_username
+password = your_password
+
+[api]
+# API 分页配置
+page = 1
+limit = 300
+
+[feishu]
+# 默认飞书 Webhook（可选）
+# 若配置了 [project_webhook_map]，会优先使用 map 中每个目标的 webhook。
+webhook = https://open.feishu.cn/open-apis/bot/v2/hook/your-default-webhook
+
+[project_webhook_map]
+# 多项目通知映射（支持多个 project_id/product_id 发送到不同 webhook）
+# key 格式：project_id_product_id
+2_1 = https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-a
+27_5 = https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-b
+
+[display]
+# 显示配置
+fixed_user_width = 8

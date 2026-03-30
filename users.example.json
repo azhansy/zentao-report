@@ -1,0 +1,22 @@
+{
+  "your_zentao_account": {
+    "display_name": "你的显示名",
+    "feishu_id": "ou_replace_with_feishu_open_id",
+    "name_variants": [
+      "你的显示名",
+      "your_zentao_account"
+    ],
+    "is_tester": false,
+    "exclude": false
+  },
+  "tester_account": {
+    "display_name": "测试同学",
+    "feishu_id": "ou_replace_with_feishu_open_id",
+    "name_variants": [
+      "测试同学",
+      "tester_account"
+    ],
+    "is_tester": true,
+    "exclude": false
+  }
+}

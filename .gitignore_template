@@ -1,0 +1,31 @@
+# Zentao 模块 .gitignore 建议
+
+# 本地敏感配置
+zentao.ini
+users.json
+
+# 运行时缓存与状态
+.zentao_token_cache
+.task_state.json
+task_state.json
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 日志与临时文件
+*.log
+*.tmp
+*.bak
+*.swp
+
+# IDE 文件
+.vscode/
+.idea/
+*.sublime-*
+
+# 保留可提交模板
+!zentao.ini.example
+!users.example.json

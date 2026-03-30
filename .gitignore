@@ -1,0 +1,30 @@
+# Local sensitive configuration
+zentao.ini
+users.json
+
+# Runtime cache and local state
+.zentao_token_cache
+task_state.json
+.task_state.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# macOS and editor files
+.DS_Store
+.vscode/
+.idea/
+*.sublime-*
+
+# Keep example templates tracked
+!zentao.ini.example
+!users.example.json
