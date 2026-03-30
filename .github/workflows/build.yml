@@ -17,7 +17,7 @@ jobs:
           - os: macos-latest
             name: macos-intel-x64
             python_version: '3.9'
-          - os: macos-13
+          - os: macos-14
             name: macos-apple-silicon-arm64
             python_version: '3.9'
           - os: windows-latest
@@ -60,7 +60,7 @@ jobs:
           ls -l "zentao_main-${{ matrix.name }}.zip"
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zentao_main-${{ matrix.name }}
           path: dist/zentao_main-${{ matrix.name }}.*
