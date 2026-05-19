@@ -233,18 +233,39 @@ def login_zentao(use_curl: bool = False, force_refresh: bool = False) -> Optiona
         # 使用 curl 绕过 WAF
         try:
             cmd = [
-                'curl', '-s', '-X', 'POST', url,
+                'curl', '-sS', '-L',
+                '--connect-timeout', '10',
+                '--max-time', '30',
+                '--retry', '2',
+                '--retry-delay', '1',
+                '-X', 'POST', url,
                 '-H', 'Content-Type: application/json',
-                '-d', json.dumps(payload)
+                '-d', json.dumps(payload),
+                '-w', '\n%{http_code}'
             ]
             
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=35)
             
             if result.returncode != 0:
-                print(f"❌ curl 执行失败: {result.stderr}")
+                error_text = (result.stderr or result.stdout or '').strip()
+                if error_text:
+                    print(f"❌ curl 执行失败（退出码 {result.returncode}）: {error_text}")
+                else:
+                    print(f"❌ curl 执行失败（退出码 {result.returncode}），无错误输出")
                 return None
             
-            response_text = result.stdout.strip()
+            output = result.stdout.rstrip('\n')
+            response_text, _, status_code = output.rpartition('\n')
+            response_text = response_text.strip()
+            status_code = status_code.strip()
+            if status_code and status_code != '200':
+                print(f"❌ HTTP 错误: {status_code}")
+                print(f"   响应内容: {response_text[:200]}")
+                return None
+            if not response_text:
+                print("❌ 登录响应为空")
+                return None
+
             resp_json = json.loads(response_text)
             token = resp_json.get("token")
             
